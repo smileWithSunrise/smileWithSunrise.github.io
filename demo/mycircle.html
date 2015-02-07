@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript">
+      window.onload = function() {
+        var canvas = document.getElementById('myCanvas');
+        var c = canvas.getContext('2d');
+
+        var len = 0;
+        var r = 30;
+        var x = [];
+        var y = [];
+        var deg = [];
+        var addx = [];
+        var addy = [];
+        var adddeg = [];    
+        var allcolor = [];
+        
+        getCircle();
+        document.getElementById('btn').addEventListener('click', getCircle);  
+        window.setInterval(function() {gameStart();}, 1);
+
+        function getCircle() {
+          len++;
+          x.push(35);
+          y.push(35);
+          addx.push(1);
+          addy.push(1);
+          adddeg.push(1);
+          deg.push(0);
+          allcolor.push(getGrd());
+        }
+
+        function gameStart() {
+          c.clearRect(0, 0, 1000, 500);
+          for(var i = 0; i < len; i++) {
+            moving(i);
+          }
+          judge();
+        }
+
+        function moving(i) {
+          if(x[i] + 35 > 1000 || x[i] - 35 < 0) {
+            addx[i] *= -1,  adddeg[i] *= -1;
+          }
+
+          if(y[i] + 35 > 500 || y[i] - 35 < 0) {
+            addy[i] *= -1, adddeg[i] *= -1;
+          }
+
+          c.save();
+          c.translate(x[i], y[i]);
+          c.rotate(deg[i] * Math.PI / 180);
+          c.strokeStyle = allcolor[i];
+          c.beginPath();
+          c.arc(0, 0, r, 0, Math.PI * 2, true);
+          c.lineWidth = 5;
+          c.stroke();
+          x[i] += addx[i], y[i] += addy[i], deg[i] += adddeg[i];
+          c.restore();
+        }
+
+        function judge() {
+          for(var i = 0; i < len; i++)
+            for(var j = i + 1; j < len; j++) {
+              if(getDis(x[i], y[i], x[j], y[j]) <= r * 2) {
+                addx[i] *= -1, addy[i] *= -1, adddeg[i] *= -1;
+                addx[j] *= -1, addy[j] *= -1, adddeg[j] *= -1;
+              }
+            }
+        }
+
+        function getRandomColor() {
+          while(true) {
+            var a = Math.random();
+            // case
+            if(a < 0.2) continue;
+            var mycolor = '#' + parseInt(a * 0xffffff).toString(16);
+            return mycolor;
+          }
+        }
+
+        function getGrd() {
+          var grd = c.createLinearGradient(-r, -r, r, r);
+          grd.addColorStop(0, getRandomColor());
+          grd.addColorStop(0.2, getRandomColor());
+          grd.addColorStop(0.4, getRandomColor());
+          grd.addColorStop(0.6, getRandomColor());
+          grd.addColorStop(0.8, getRandomColor());
+          grd.addColorStop(1, getRandomColor());
+          return grd;
+        }
+
+        function getDis(x1, y1, x2, y2) {
+          var res = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+          return Math.sqrt(res);
+        }
+      };
+    </script>
+  </head>
+
+  <body>
+    <canvas id='myCanvas' width=1000 height=500 style='background-color:black'>
+    </canvas>
+    <input type='button' value='add' id='btn' />
+  </body>
+</html>
